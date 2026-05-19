@@ -1,0 +1,123 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* WorkBook Theme - Stone Gray Background with Blue-Purple Gradient Accents */
+  --background: #FAFAF9;
+  --foreground: #1C1917;
+  --card: #FFFFFF;
+  --card-foreground: #1C1917;
+  --popover: #FFFFFF;
+  --popover-foreground: #1C1917;
+  --primary: #4F46E5;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EEF2FF;
+  --secondary-foreground: #4F46E5;
+  --muted: #F5F5F4;
+  --muted-foreground: #78716C;
+  --accent: #EEF2FF;
+  --accent-foreground: #4F46E5;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E7E5E4;
+  --input: #E7E5E4;
+  --ring: #4F46E5;
+  --chart-1: #4F46E5;
+  --chart-2: #7C3AED;
+  --chart-3: #10B981;
+  --chart-4: #F59E0B;
+  --chart-5: #EF4444;
+  --radius: 0.625rem;
+  
+  /* Custom WorkBook Colors */
+  --success: #10B981;
+  --warning: #F59E0B;
+  --urgent: #EF4444;
+  --important: #F59E0B;
+  --normal: #9CA3AF;
+  --gradient-start: #4F46E5;
+  --gradient-end: #7C3AED;
+}
+
+.dark {
+  --background: #1C1917;
+  --foreground: #FAFAF9;
+  --card: #292524;
+  --card-foreground: #FAFAF9;
+  --popover: #292524;
+  --popover-foreground: #FAFAF9;
+  --primary: #818CF8;
+  --primary-foreground: #1C1917;
+  --secondary: #292524;
+  --secondary-foreground: #818CF8;
+  --muted: #292524;
+  --muted-foreground: #A8A29E;
+  --accent: #292524;
+  --accent-foreground: #818CF8;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #44403C;
+  --input: #44403C;
+  --ring: #818CF8;
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom gradient utilities */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
