@@ -9,8 +9,57 @@ __v0_jsx-dev-runtime.ts
 # Environment variables
 .env*.local
 
-# Common ignores
-node_modules
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js build output
 .next/
+out/
+build/
+
+# TypeScript cache
+*.tsbuildinfo
+.next/types/
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Optional: lock files (uncomment if you want to ignore them – not recommended for libraries)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local environment files (excluding .env.local which is already covered)
+.env
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
 .vercel
+
+# Miscellaneous
+*.log
+.cache/
+.eslintcache
+.stylelintcache
+.vercel/output/
