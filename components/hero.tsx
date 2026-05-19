@@ -1,18 +1,57 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ChevronDown, Monitor, Apple, Download, Globe, Play, X, Flag, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const platforms = [
-  { id: "windows", name: "Windows", icon: Monitor, available: true, label: "Download for Windows" },
-  { id: "linux", name: "Linux", icon: Monitor, available: true, label: "Download for Linux" },
-  { id: "macos", name: "macOS", icon: Apple, available: false, label: "Coming Soon" },
+  {
+    id: "windows",
+    name: "Windows",
+    icon: Monitor,
+    available: true,
+    label: "Download for Windows",
+    downloadUrl: "/api/download/WorkBook-Setup.exe",
+  },
+  {
+    id: "linux",
+    name: "Linux",
+    icon: Monitor,
+    available: true,
+    label: "Download for Linux",
+    downloadUrl: "/api/download/WorkBook.deb",
+  },
+  {
+    id: "macos",
+    name: "macOS",
+    icon: Apple,
+    available: false,
+    label: "Coming Soon",
+    downloadUrl: null,
+  },
 ]
 
 export function Hero() {
   const [selectedPlatform, setSelectedPlatform] = useState(platforms[0])
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const handleDownload = () => {
+    if (selectedPlatform.available && selectedPlatform.downloadUrl) {
+      window.location.href = selectedPlatform.downloadUrl
+    }
+  }
 
   return (
     <section className="relative pt-24 pb-16 lg:pt-32 lg:pb-24">
@@ -37,7 +76,7 @@ export function Hero() {
             {/* CTA Area */}
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               {/* OS Dropdown */}
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center justify-between w-full sm:w-44 px-4 py-2.5 bg-card border border-border rounded-lg text-foreground hover:border-primary/50 transition-colors text-sm"
@@ -81,6 +120,7 @@ export function Hero() {
               {/* Primary Download Button */}
               <Button
                 disabled={!selectedPlatform.available}
+                onClick={handleDownload}
                 className={`gradient-primary text-white hover:opacity-90 transition-all ${
                   !selectedPlatform.available ? "opacity-50 cursor-not-allowed" : "hover:-translate-y-0.5"
                 }`}
@@ -92,11 +132,21 @@ export function Hero() {
 
             {/* Secondary CTAs */}
             <div className="mt-3 flex flex-col sm:flex-row gap-2 justify-center lg:justify-start">
-              <Button variant="outline" size="sm" className="border-border text-sm">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-border text-sm"
+                onClick={() => window.open("https://your-web-app.vercel.app", "_blank")}
+              >
                 <Globe className="w-4 h-4 mr-2" />
                 Use Web Version
               </Button>
-              <Button variant="outline" size="sm" className="border-border text-sm">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-border text-sm"
+                onClick={() => window.open("https://play.google.com/store/apps/details?id=com.yourapp", "_blank")}
+              >
                 <Play className="w-4 h-4 mr-2" />
                 Get on Play Store
               </Button>
@@ -128,9 +178,8 @@ export function Hero() {
 function HeroMockup() {
   return (
     <div className="relative w-full max-w-[320px] lg:max-w-[360px]">
-      {/* Main app panel - matching WorkBook design */}
+      {/* Main app panel */}
       <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
-        {/* Header */}
         <div className="px-4 py-3 flex items-center justify-between">
           <span className="font-bold text-lg gradient-text">WorkBook</span>
           <div className="flex items-center gap-2">
@@ -142,8 +191,6 @@ function HeroMockup() {
             </button>
           </div>
         </div>
-
-        {/* Tabs: Past / Present / Future */}
         <div className="px-4 flex items-center justify-center gap-2 py-2">
           <button className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors">
             Past
@@ -155,34 +202,22 @@ function HeroMockup() {
             Future
           </button>
         </div>
-
-        {/* Section Title */}
         <div className="px-4 pt-4 pb-2">
           <h3 className="font-bold text-xl text-gray-900">Present</h3>
           <p className="text-sm text-gray-500">Current focus</p>
         </div>
-
-        {/* Add Task Input */}
         <div className="px-4 py-2">
           <div className="flex items-center gap-3 px-4 py-3 border-2 border-primary/30 rounded-xl bg-white">
             <div className="w-5 h-5 rounded-full border-2 border-primary/40 flex-shrink-0" />
             <span className="text-gray-400 text-sm">Type here to add a task...</span>
           </div>
         </div>
-
-        {/* Task List */}
         <div className="px-4 py-2 space-y-2">
-          <TaskItem 
-            text="Prepare for Computer Networks Exam" 
-            priority="urgent" 
-            showDropdown 
-          />
+          <TaskItem text="Prepare for Computer Networks Exam" priority="urgent" showDropdown />
           <TaskItem text="Fix bugs in the project" priority="urgent" />
           <TaskItem text="Solve 3 LeetCode Problems" priority="important" />
           <TaskItem text="Do the dishes" priority="normal" />
         </div>
-
-        {/* Premium Banner */}
         <div className="mx-4 mb-4 mt-2 bg-gradient-to-r from-[#7C3AED] to-[#9333EA] rounded-xl p-3 flex items-center gap-3">
           <div className="w-8 h-8 flex-shrink-0">
             <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
@@ -212,14 +247,14 @@ function HeroMockup() {
   )
 }
 
-function TaskItem({ 
-  text, 
-  priority, 
-  showDropdown 
-}: { 
+function TaskItem({
+  text,
+  priority,
+  showDropdown,
+}: {
   text: string
   priority: "urgent" | "important" | "normal"
-  showDropdown?: boolean 
+  showDropdown?: boolean
 }) {
   const priorityColors = {
     urgent: "bg-[#EF4444]",
@@ -228,7 +263,11 @@ function TaskItem({
   }
 
   return (
-    <div className={`flex items-center gap-2 px-3 py-3 bg-white border border-gray-100 rounded-xl ${showDropdown ? "ring-2 ring-primary/20" : ""}`}>
+    <div
+      className={`flex items-center gap-2 px-3 py-3 bg-white border border-gray-100 rounded-xl ${
+        showDropdown ? "ring-2 ring-primary/20" : ""
+      }`}
+    >
       <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0" />
       <span className="text-gray-800 text-sm flex-1 min-w-0 truncate">{text}</span>
       <div className="flex items-center gap-1 flex-shrink-0">
@@ -247,14 +286,14 @@ function TaskItem({
   )
 }
 
-function PriorityOption({ 
-  priority, 
-  label, 
-  active 
-}: { 
+function PriorityOption({
+  priority,
+  label,
+  active,
+}: {
   priority: "urgent" | "important" | "normal"
   label: string
-  active?: boolean 
+  active?: boolean
 }) {
   const priorityColors = {
     urgent: "bg-[#EF4444]",
@@ -263,12 +302,14 @@ function PriorityOption({
   }
 
   return (
-    <div className={`flex items-center gap-3 px-4 py-2 cursor-pointer transition-colors ${active ? "bg-gray-50" : "hover:bg-gray-50"}`}>
+    <div
+      className={`flex items-center gap-3 px-4 py-2 cursor-pointer transition-colors ${
+        active ? "bg-gray-50" : "hover:bg-gray-50"
+      }`}
+    >
       <div className={`w-3 h-3 rounded-full flex-shrink-0 ${priorityColors[priority]}`} />
       <span className={`flex-1 text-sm ${active ? "text-gray-900 font-medium" : "text-gray-700"}`}>{label}</span>
-      {active && (
-        <Check className="w-4 h-4 text-primary flex-shrink-0" />
-      )}
+      {active && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
     </div>
   )
 }
