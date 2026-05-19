@@ -83,11 +83,22 @@ export function Screenshots() {
   )
 }
 
+// FIXED: Changed from <button> to <div> with role="button" to avoid nested buttons
 function ScreenshotCard({ screenshot, onClick }: { screenshot: typeof screenshots[0]; onClick: () => void }) {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onClick()
+    }
+  }
+
   return (
-    <button
+    <div
       onClick={onClick}
-      className="group relative bg-card rounded-xl border border-border overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg hover:-translate-y-1 text-left"
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      className="group relative bg-card rounded-xl border border-border overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg hover:-translate-y-1 cursor-pointer"
     >
       <div className="aspect-video bg-muted flex items-center justify-center overflow-hidden">
         <ScreenshotPlaceholder title={screenshot.title} />
@@ -98,7 +109,7 @@ function ScreenshotCard({ screenshot, onClick }: { screenshot: typeof screenshot
         </h3>
         <p className="text-sm text-muted-foreground mt-1">{screenshot.description}</p>
       </div>
-    </button>
+    </div>
   )
 }
 

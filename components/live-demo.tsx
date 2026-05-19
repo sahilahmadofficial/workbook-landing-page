@@ -1,10 +1,107 @@
 "use client"
 
-import { useState } from "react"
-import { Play, Pause, Maximize2, Volume2 } from "lucide-react"
+import { useRef, useState, useEffect } from "react"
+import { Play, Pause, Maximize2, Volume2, VolumeX } from "lucide-react"
 
 export function LiveDemo() {
+  const videoRef = useRef<HTMLVideoElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [volume, setVolume] = useState(1)
+  const [isMuted, setIsMuted] = useState(true) // Start muted for autoplay
+  const [progress, setProgress] = useState(0)
+  const [duration, setDuration] = useState(0)
+
+  // Attempt to autoplay when component mounts
+  useEffect(() => {
+    if (videoRef.current) {
+      // Autoplay with mute is allowed in most browsers
+      videoRef.current.muted = true
+      videoRef.current.play()
+        .then(() => {
+          setIsPlaying(true)
+          setIsMuted(true)
+        })
+        .catch((err) => {
+          console.log("Autoplay prevented:", err)
+          setIsPlaying(false)
+        })
+    }
+  }, [])
+
+  // Play/Pause
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause()
+      } else {
+        videoRef.current.play()
+      }
+      setIsPlaying(!isPlaying)
+    }
+  }
+
+  // Update progress bar as video plays
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const percent = (videoRef.current.currentTime / videoRef.current.duration) * 100
+      setProgress(percent)
+    }
+  }
+
+  // Get video duration when metadata loads
+  const handleLoadedMetadata = () => {
+    if (videoRef.current) {
+      setDuration(videoRef.current.duration)
+    }
+  }
+
+  // Seek when clicking on timeline
+  const seek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (videoRef.current) {
+      const rect = e.currentTarget.getBoundingClientRect()
+      const clickX = e.clientX - rect.left
+      const width = rect.width
+      const percent = clickX / width
+      videoRef.current.currentTime = percent * videoRef.current.duration
+    }
+  }
+
+  // Mute / Unmute
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted
+      setIsMuted(!isMuted)
+    }
+  }
+
+  // Volume slider change
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(e.target.value)
+    setVolume(newVolume)
+    if (videoRef.current) {
+      videoRef.current.volume = newVolume
+      videoRef.current.muted = newVolume === 0
+      setIsMuted(newVolume === 0)
+    }
+  }
+
+  // Fullscreen toggle
+  const toggleFullscreen = () => {
+    if (videoRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen()
+      } else {
+        videoRef.current.requestFullscreen()
+      }
+    }
+  }
+
+  // Format seconds to MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+    return `${mins}:${secs.toString().padStart(2, "0")}`
+  }
 
   return (
     <section id="demo" className="py-20 lg:py-32 bg-card">
@@ -21,45 +118,68 @@ export function LiveDemo() {
         {/* Video Player */}
         <div className="relative max-w-4xl mx-auto">
           <div className="relative aspect-video bg-foreground/5 rounded-2xl overflow-hidden border border-border shadow-2xl">
-            {/* Video placeholder with animated demo */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <DemoAnimation isPlaying={isPlaying} />
-            </div>
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              onTimeUpdate={handleTimeUpdate}
+              onLoadedMetadata={handleLoadedMetadata}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              poster="/placeholder.jpg" // optional – replace with your own thumbnail if desired
+            >
+              <source src="/workbook-demo.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
 
-            {/* Play overlay */}
-            {!isPlaying && (
-              <div className="absolute inset-0 flex items-center justify-center bg-foreground/10 backdrop-blur-sm">
-                <button
-                  onClick={() => setIsPlaying(true)}
-                  className="w-20 h-20 rounded-full gradient-primary flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
-                >
-                  <Play className="w-8 h-8 text-white ml-1" />
-                </button>
-              </div>
-            )}
-
-            {/* Controls bar */}
+            {/* Custom Controls Bar */}
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-foreground/80 to-transparent">
               <div className="flex items-center gap-4">
+                {/* Play/Pause Button */}
                 <button
-                  onClick={() => setIsPlaying(!isPlaying)}
+                  onClick={togglePlay}
                   className="text-white hover:text-white/80 transition-colors"
                 >
                   {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
                 </button>
 
                 {/* Timeline */}
-                <div className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden">
-                  <div className={`h-full gradient-primary transition-all duration-1000 ${isPlaying ? "w-2/3" : "w-0"}`} />
+                <div
+                  className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden cursor-pointer"
+                  onClick={seek}
+                >
+                  <div
+                    className="h-full bg-white transition-all duration-75"
+                    style={{ width: `${progress}%` }}
+                  />
                 </div>
 
-                <span className="text-white text-sm font-medium">1:24</span>
+                {/* Current Time */}
+                <span className="text-white text-sm font-medium">
+                  {duration ? formatTime((progress / 100) * duration) : "0:00"}
+                </span>
 
-                <button className="text-white hover:text-white/80 transition-colors">
-                  <Volume2 className="w-5 h-5" />
-                </button>
+                {/* Volume Control */}
+                <div className="flex items-center gap-2">
+                  <button onClick={toggleMute} className="text-white hover:text-white/80">
+                    {isMuted || volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={volume}
+                    onChange={handleVolumeChange}
+                    className="w-20 h-1 bg-white/30 rounded-full accent-white"
+                  />
+                </div>
 
-                <button className="text-white hover:text-white/80 transition-colors">
+                {/* Fullscreen Button */}
+                <button onClick={toggleFullscreen} className="text-white hover:text-white/80">
                   <Maximize2 className="w-5 h-5" />
                 </button>
               </div>
@@ -67,7 +187,7 @@ export function LiveDemo() {
           </div>
         </div>
 
-        {/* Demo highlights */}
+        {/* Demo Highlights */}
         <div className="mt-12 grid sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
           <DemoHighlight icon="🎯" title="Priority Selection" description="Clean dropdown with colored indicators" />
           <DemoHighlight icon="⚡" title="Auto Sorting" description="Tasks organize instantly by priority" />
@@ -78,50 +198,7 @@ export function LiveDemo() {
   )
 }
 
-function DemoAnimation({ isPlaying }: { isPlaying: boolean }) {
-  return (
-    <div className="w-full h-full p-8 flex items-center justify-center">
-      <div className={`transition-opacity duration-500 ${isPlaying ? "opacity-100" : "opacity-50"}`}>
-        <div className="bg-card rounded-xl shadow-lg border border-border p-6 w-80">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="font-semibold text-foreground text-sm">Present</h4>
-            <span className="text-xs text-muted-foreground">Today</span>
-          </div>
-          
-          <div className="space-y-2">
-            <AnimatedTask priority="urgent" text="Fix critical bug" delay={0} isPlaying={isPlaying} />
-            <AnimatedTask priority="important" text="Team meeting prep" delay={200} isPlaying={isPlaying} />
-            <AnimatedTask priority="important" text="Code review" delay={400} isPlaying={isPlaying} />
-            <AnimatedTask priority="normal" text="Update docs" delay={600} isPlaying={isPlaying} />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function AnimatedTask({ priority, text, delay, isPlaying }: { priority: "urgent" | "important" | "normal"; text: string; delay: number; isPlaying: boolean }) {
-  const priorityColors = {
-    urgent: "bg-[#EF4444]",
-    important: "bg-[#F59E0B]",
-    normal: "bg-[#9CA3AF]",
-  }
-
-  return (
-    <div 
-      className={`flex items-center gap-2 p-2 bg-muted/50 rounded-lg transition-all duration-500`}
-      style={{ 
-        transitionDelay: `${delay}ms`,
-        transform: isPlaying ? "translateX(0)" : "translateX(-10px)",
-        opacity: isPlaying ? 1 : 0.7
-      }}
-    >
-      <div className={`w-2.5 h-2.5 rounded-full ${priorityColors[priority]}`} />
-      <span className="text-foreground text-xs">{text}</span>
-    </div>
-  )
-}
-
+// Helper component for feature highlights
 function DemoHighlight({ icon, title, description }: { icon: string; title: string; description: string }) {
   return (
     <div className="text-center p-4">
