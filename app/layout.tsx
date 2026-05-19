@@ -25,6 +25,16 @@ export const metadata: Metadata = {
     title: 'WorkBook — Your Tasks, Perfectly Organized',
     description: 'A minimal, professional task manager with intelligent priority sorting.',
   },
+  // Optional: add icons metadata (Next.js can also auto-detect from public/)
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/site.webmanifest',
 }
 
 export const viewport: Viewport = {
